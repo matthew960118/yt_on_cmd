@@ -17,7 +17,7 @@ https://www.videolan.org/vlc/download-windows.html
 載完之後重開VScode 或者 終端機
 
 開一個新的終端機 執行此命令
-wt --size 187,51 --pos 1,1  -window python yt_on_cmd_full.py -v 50
+wt --size 187,51 --pos 1,1  -window python {filename}.py -v 50
 要是畫面怪怪的可以適度調整終端機的視窗大小
 
 也可以直接執行檔案
