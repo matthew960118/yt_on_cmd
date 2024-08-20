@@ -24,10 +24,12 @@ wt --size 187,51 --pos 1,1  -window python {filename}.py -v 50
 不過需要自己將視窗拉至合適的大小
  
 ver1.0
+
 https://github.com/user-attachments/assets/0ae23c8a-6ec5-4028-b0e4-857b41c8d50d
 
 
 ver1.1
+
 https://github.com/user-attachments/assets/7e0c0da4-0286-4499-8598-24b383c4e503
 
 
