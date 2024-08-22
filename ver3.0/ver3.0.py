@@ -13,7 +13,7 @@ import subprocess
 parser = argparse.ArgumentParser()
 
 parser.add_argument('url',type=str,nargs='?', help="Youtube 影片的url")
-parser.add_argument("--width", type=int, default=185, help="視窗寬(太寬可能會超出螢幕範圍)")
+parser.add_argument("--width", type=int, default=187, help="視窗寬(太寬可能會超出螢幕範圍)")
 parser.add_argument("--height", type=int, default=50, help="視窗高(太高可能會超出螢幕範圍)")
 parser.add_argument('-t',"--title", type=str, default=" ", help="畫面填充的文字 (預設空白)")
 parser.add_argument("-v","--volume", type=int, default=20, help="音量")
@@ -131,21 +131,27 @@ pipe = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.DEVNU
 fps = info['fps']
 w = info["width"]
 h = info["height"]
-
 #計算縮放比例
-scale_W = width/w
-scale_H = height/h
-scale = min(scale_H,scale_W)
-new_H = int(h*scale)
-new_W = int(w*scale*(aspect_ratio))#調整長寬比
+w1 = w
+h1 = h*(9/19)
 
-#調整至中
+scale_h = height/h1
+scale_w = width/w1
+
+scale = min(scale_h,scale_w)
+
+new_H = int(h1*scale)
+new_W = int(w1*scale)
+
+
 x_offset = (width - new_W) // 2
 y_offset = (height - new_H) // 2
 
 black_background = np.zeros((height, width, 3), dtype=np.uint8)
 
-os.system("cls")
+# os.system("cls")
+print(w,h)
+
 startTime = time.time()
 index=0
 player.play()
