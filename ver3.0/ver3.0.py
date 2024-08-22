@@ -17,7 +17,7 @@ parser.add_argument("--width", type=int, default=187, help="視窗寬(太寬可�
 parser.add_argument("--height", type=int, default=50, help="視窗高(太高可能會超出螢幕範圍)")
 parser.add_argument('-t',"--title", type=str, default=" ", help="畫面填充的文字 (預設空白)")
 parser.add_argument("-v","--volume", type=int, default=20, help="音量")
-parser.add_argument("--text_aspect_ratio", type=str, default='19/9', help="字的長寬比 format: W/H")
+parser.add_argument("--text_aspect_ratio", type=str, default='9/19', help="字的長寬比 format: W/H")
 #---------------------------------------------------------#
 
 args = parser.parse_args()
