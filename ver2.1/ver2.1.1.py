@@ -26,7 +26,7 @@ width = args.width # 影片寬
 height = args.height # 影片高
 title = args.title # 畫面要用甚麼詞填充 (預設空白)
 volume = args.volume # 音量
-aspect_ratio = 19/9 # 字的長寬比 Windows11終端機預設是19:9(H:w)
+aspect_ratio = 9/19 # 字的長寬比 Windows11終端機預設是9:19(W:H)
 
 CLEAR_SCREEN = '\033[3J'
 BACK_TO_AHEAD = '\033[H'
@@ -102,11 +102,16 @@ w = info['width']
 h = info['height']
 
 #計算縮放比例
-scale_W = width/w
-scale_H = height/h
-scale = min(scale_H,scale_W)
-new_H = int(h*scale)
-new_W = int(w*scale*(aspect_ratio))#調整長寬比
+w1 = w
+h1 = h*aspect_ratio
+
+scale_h = height/h1
+scale_w = width/w1
+
+scale = min(scale_h,scale_w)
+
+new_H = int(h1*scale)
+new_W = int(w1*scale)
 
 #調整至中
 x_offset = (width - new_W) // 2
