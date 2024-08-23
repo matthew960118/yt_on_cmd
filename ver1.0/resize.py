@@ -5,7 +5,7 @@ import subprocess
 width = 150
 height = 50 
 
-file_name = "./Myomyomyomyomyomyomyon.mp4"
+file_name = "your_file_name.mp4"
 
 cap = cv2.VideoCapture(file_name)
 fourcc = cv2.VideoWriter.fourcc(*'mp4v')         
@@ -40,7 +40,7 @@ while True:
     # if cv2.waitKey(1) == ord('q'):
     #     break                              
 cap.release()
-out.release()      # 釋放資源
+out.release()     
 cv2.destroyAllWindows()
 
 def convert_to_mp3(file_name):
@@ -48,14 +48,13 @@ def convert_to_mp3(file_name):
     # 使用 subprocess 调用 ffmpeg
     command = [
         'ffmpeg', 
-        '-i', file_name,     # 输入文件
-        '-q:a', '0',         # 最高音质
-        '-map', 'a',         # 只提取音频
-        output_file          # 输出文件
+        '-i', file_name,     
+        '-q:a', '0',       
+        '-map', 'a',        
+        output_file         
     ]
     
     try:
-        # 使用 subprocess 执行命令
         subprocess.run(command, check=True)
         print(f"Conversion successful: {output_file}")
     except subprocess.CalledProcessError as e:
