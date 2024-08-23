@@ -13,7 +13,6 @@ title = ' ' # 畫面要用甚麼詞填充 (預設空白)
 volume = 20 # 音量
 #---------------------------------------------------------#
 
-
 CLEAR_SCREEN = '\033[3J'
 BACK_TO_AHEAD = '\033[H'
 mySign = "    created by Matthew"
