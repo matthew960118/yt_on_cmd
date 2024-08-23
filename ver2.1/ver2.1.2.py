@@ -70,8 +70,10 @@ def pixel(color):
 
 ## 渲染畫面 優化板
 def print_img(img):
+    global title_counter
     lines = []
     for i in range(height):
+        title_counter = -1
         line = ''.join(pixel(img[i, j]) for j in range(width))
         lines.append(line)
     
