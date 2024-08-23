@@ -16,6 +16,7 @@ parser.add_argument("--width", type=int, default=185, help="視窗寬(太寬可�
 parser.add_argument("--height", type=int, default=50, help="視窗高(太高可能會超出螢幕範圍)")
 parser.add_argument('-t',"--title", type=str, default=" ", help="畫面填充的文字 (預設空白)")
 parser.add_argument("-v","--volume", type=int, default=20, help="音量")
+parser.add_argument("-n","--negative", action='store_true' , help="文字是否與背景互為負片(!!此選項會大幅增加性能開銷!!)")
 #---------------------------------------------------------#
 
 args = parser.parse_args()
@@ -37,8 +38,14 @@ def pixel(color):
     b, g, r = color
     global title_counter
     title_counter=title_counter+1
-    # return f'\033[48;2;{r};{g};{b};38;2;{255-r};{255-g};{255-b}m{title[title_counter%len(title)]}'
-    return f'\033[48;2;{r};{g};{b}m '
+    #######################################################
+    # 上面的return是可以讓顯示的字與背景成對比色，但是更耗效能 #
+    # 下方的return會關閉上述效果，但比較節省資源(畫面比較流暢) #
+    #######################################################
+    if args.negative:
+        return f'\033[48;2;{r};{g};{b};38;2;{255-r};{255-g};{255-b}m{title[title_counter%len(title)]}'
+    else:
+        return f'\033[48;2;{r};{g};{b}m{title[title_counter%len(title)]}'
 # 渲染畫面
 # def print_img(img):
 #     global title_counter
