@@ -124,6 +124,7 @@ os.system("cls")
 startTime = time.time()
 index=0
 player.play()
+
 while True:
     #讀取幀 並 resize
     raw_img = pipe.stdout.read(w*h*3)
