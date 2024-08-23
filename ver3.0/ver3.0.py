@@ -32,11 +32,10 @@ aspect_ratio = eval(args.text_aspect_ratio) # 字的長寬比 Windows11 終端�
 
 CLEAR_SCREEN = '\033[3J'
 BACK_TO_AHEAD = '\033[H'
-mySign = "    created by Matthew"
 
 title_counter = -1
 
-# 定義單個像素
+# 定義單個像素的顏色
 def pixel(color):
     b, g, r = color
     global title_counter
@@ -46,8 +45,8 @@ def pixel(color):
     # 下方的return會關閉上述效果，但比較節省資源(畫面比較流暢) #
     #######################################################
 
-    # return f'\033[48;2;{r};{g};{b};38;2;{255-r};{255-g};{255-b}m{title[title_counter%len(title)]}'
-    return f'\033[48;2;{r};{g};{b}m{title[title_counter%len(title)]}'
+    # return f'\033[48;2;{r};{g};{b};38;2;{255-r};{255-g};{255-b}m'
+    return f'\033[48;2;{r};{g};{b}m'
 # 渲染畫面
 # def print_img(img):
 #     global title_counter
@@ -70,16 +69,41 @@ def pixel(color):
 #         a+='\n'
 #     print(a,end="")
 
-## 渲染畫面 優化板
-def print_img(img):
-    lines = []
-    global title_counter
-    for i in range(height):
-        line = ''.join(pixel(img[i, j]) for j in range(width))
-        title_counter = -1
-        lines.append(line)
+
+# def print_img(img):
+#     lines = []
+#     global title_counter
+#     for i in range(height):
+#         line = ''.join(pixel(img[i, j]) for j in range(width))
+#         title_counter = -1
+#         lines.append(line)
     
-    print('\n'.join(lines)+'\033[48;2;0;0;0;38;2;255;255;255m')
+#     print('\n'.join(lines)+'\033[48;2;0;0;0;38;2;255;255;255m')
+
+#初始化
+def init_screen(x,y,w,h):
+    line = ''
+    for i in range(w):
+        line+=title[i%len(title)]
+    print("\033[48;2;0;0;0;38;2;255;255;255m")
+    for i in range(h):
+        print(f"\033[{y+i+1};{x+1}H{line}",end="")
+
+
+def find_differences(pre_img,img):
+    difference = np.any(pre_img != img,axis=-1)
+    difference_indices = np.where(difference)
+    return difference_indices
+## 渲染畫面 優化板 (只渲染與前一張不同的像素)
+def new_print_img(pre_img,img):
+    print_str = ''
+    diff_indices = find_differences(pre_img,img)
+    for h,w in zip(*diff_indices):
+        print_str+=f'\033[{h+1};{w+1}H{pixel(img[h,w])}{title[(w-x_offset)%len(title)]}'
+    print(print_str)
+    # print(diff_indices)
+
+
 # 獲得串流url (影片)
 def get_stream_info(url):
     ydl_opts = {
@@ -121,7 +145,6 @@ command = [
     '-'
 ]
 
-
 #舊版使用cv2.VideoCapture來串流 但無法指定像是 -reconnect 的ffmpeg參數
 #所以新版直接使用它底層的ffmpeg來進行串流
 
@@ -147,43 +170,52 @@ new_W = int(w1*scale)
 x_offset = (width - new_W) // 2
 y_offset = (height - new_H) // 2
 
-black_background = np.zeros((height, width, 3), dtype=np.uint8)
+screen = np.zeros((height, width, 3), dtype=np.uint8)
 
-# os.system("cls")
-print(w,h)
+os.system("cls")
 
 startTime = time.time()
 index=0
 player.play()
-while True:
-    #讀取幀 並 resize
-    raw_img = pipe.stdout.read(w*h*3)
-    if len(raw_img) != (w*h*3):
-        break
-    frame = np.frombuffer(raw_img, dtype='uint8').reshape((h,w,3))
 
-    img_1 = cv2.resize(frame,(new_W, new_H))
+pre_frame = screen
+init_screen(x_offset,y_offset,new_W,new_H)
+try:
+    while True:
+        #讀取幀 並 resize
+        raw_img = pipe.stdout.read(w*h*3)
+        if len(raw_img) != (w*h*3):
+            break
+        frame = np.frombuffer(raw_img, dtype='uint8').reshape((h,w,3))
 
-    black_background[y_offset:y_offset+new_H,x_offset:x_offset+new_W] = img_1
-    #畫面渲染
-    print(CLEAR_SCREEN,end='')
-    print(BACK_TO_AHEAD,end='')
-    print_img(black_background)
-    
-    #計算渲染速度快了多少 防止畫面播太快 導致音畫不同步
-    sleepTime = index/fps - time.time() +startTime
-    if sleepTime >0:
-        time.sleep(sleepTime)
-    #計算染速度慢了多少 跳過指定數量的幀
-    elif sleepTime<0:
-        currect_frame = int((time.time()-startTime)*fps)
-        for i in range(currect_frame-index):
-            raw_img = pipe.stdout.read(w*h*3)
-            if len(raw_img) != (w*h*3):
-                break
-        index = currect_frame
-    
-    index+=1
+        img_1 = cv2.resize(frame,(new_W, new_H))
+
+        screen[y_offset:y_offset+new_H,x_offset:x_offset+new_W] = img_1
+        #畫面渲染
+        # print(CLEAR_SCREEN,end='')
+        print(BACK_TO_AHEAD,end='')
+        new_print_img(pre_frame,screen)
+
+        pre_frame = np.copy(screen)
+        #計算渲染速度快了多少 防止畫面播太快 導致音畫不同步
+        sleepTime = index/fps - time.time() +startTime
+        if sleepTime >0:
+            # print("\033[50HYsleep")
+            time.sleep(sleepTime)
+        #計算染速度慢了多少 跳過指定數量的幀
+        elif sleepTime<0:
+            # print("\033[50HNSleep")
+            currect_frame = int((time.time()-startTime)*fps)
+            for i in range(currect_frame-index):
+                raw_img = pipe.stdout.read(w*h*3)
+                if len(raw_img) != (w*h*3):
+                    break
+            index = currect_frame
+        
+        index+=1
+finally:
+    print("\033[48;2;0;0;0;38;2;255;255;255m")
+    os.system('cls')
 
 
 
